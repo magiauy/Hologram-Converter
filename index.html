@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pixel Art Hologram Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'neon-blue': '#00f3ff',
+            'neon-purple': '#9945ff',
+            'neon-pink': '#ff10f0',
+            'cyber-dark': '#0a0a0a',
+            'cyber-gray': '#1a1a1a',
+          },
+          animation: {
+            'gradient': 'gradient 3s ease infinite',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'bounce-slow': 'bounce 2s infinite',
+            'spin-slow': 'spin 3s linear infinite',
+            'float': 'float 3s ease-in-out infinite',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            gradient: {
+              '0%, 100%': { 'background-position': '0% 50%' },
+              '50%': { 'background-position': '100% 50%' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            glow: {
+              'from': { 'box-shadow': '0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 30px #00f3ff' },
+              'to': { 'box-shadow': '0 0 20px #9945ff, 0 0 30px #9945ff, 0 0 40px #9945ff' },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Fira+Code:wght@300;400;500&display=swap');
+    
+    body {
+      font-family: 'Orbitron', monospace;
+      background: linear-gradient(-45deg, #0a0a0a, #1a1a1a, #0f0f23, #1a1a2e);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      min-height: 100vh;
+    }
+    
+    .cyber-border {
+      border: 2px solid transparent;
+      background: linear-gradient(45deg, #00f3ff, #9945ff, #ff10f0) border-box;
+      border-radius: 12px;
+      position: relative;
+    }
+    
+    .cyber-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #00f3ff, #9945ff, #ff10f0);
+      border-radius: 12px;
+      z-index: -1;
+      animation: gradient 3s ease infinite;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .neon-text {
+      text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+    
+    .loading-spinner {
+      border: 4px solid rgba(0, 243, 255, 0.3);
+      border-top: 4px solid #00f3ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    .pixel-preview {
+      font-family: 'Fira Code', monospace;
+      line-height: 0.5 !important;
+      background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+      white-space: pre;
+    }
+    
+    .hover-glow:hover {
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+      transform: translateY(-2px);
+      transition: all 0.3s ease;
+    }
+    
+    .cyber-input {
+      background: rgba(26, 26, 26, 0.8);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      color: #00f3ff;
+      transition: all 0.3s ease;
+    }
+    
+    .cyber-input:focus {
+      border-color: #00f3ff;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+      outline: none;
+    }
+    
+    .cyber-button {
+      background: linear-gradient(45deg, #00f3ff, #9945ff);
+      border: none;
+      color: white;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .cyber-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 243, 255, 0.3);
+    }
+    
+    .cyber-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .cyber-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .cyber-button:hover::before {
+      left: 100%;
+    }
+    
+    .section-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00f3ff, transparent);
+      margin: 3rem 0;
+    }
+    
+    .holo-item {
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .holo-item:hover {
+      border-color: #00f3ff;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    }
+    
+    .holo-header {
+      cursor: pointer;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+    }
+    
+    .holo-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .holo-content.expanded {
+      max-height: 1000px;
+    }
+    
+    .holo-subitem {
+      padding: 8px 16px;
+      border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .holo-subitem:last-child {
+      border-bottom: none;
+    }
+    
+    .copy-btn {
+      background: linear-gradient(45deg, #00f3ff, #9945ff);
+      color: white;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+    
+    .copy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 2px 8px rgba(0, 243, 255, 0.3);
+    }
+    
+    .copy-btn.copied {
+      background: linear-gradient(45deg, #10b981, #059669);
+    }
+    
+    .chevron {
+      transition: transform 0.3s ease;
+    }
+    
+    .chevron.rotated {
+      transform: rotate(180deg);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <p class="text-neon-blue neon-text text-xl">Processing Image...</p>
+      <div class="mt-4 w-64 bg-gray-800 rounded-full h-2">
+        <div id="progressBar" class="bg-gradient-to-r from-neon-blue to-neon-purple h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink neon-text mb-4 animate-float">
+        Pixel Art Hologram Converter
+      </h1>
+      <p class="text-xl text-gray-300 animate-pulse-slow">Transform your images into stunning Minecraft holograms</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="glass-effect rounded-2xl p-8 mb-8 hover-glow">
+      <!-- Image Upload Section -->
+      <div class="mb-8">
+        <h2 class="text-3xl font-bold text-neon-blue mb-6 flex items-center justify-center">
+          <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+          </svg>
+          Image Converter
+        </h2>
+        
+        <!-- Controls Row 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-300">Output Pixel Character</label>
+            <select id="outputPixelChar" class="cyber-input w-full px-4 py-2 rounded-lg">
+              <option value="█">█ (Solid Block)</option>
+              <option value="■">■ (Square)</option>
+            </select>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-300">Max Width (pixels)</label>
+            <input type="number" id="widthInput" value="18" min="1" max="64" class="cyber-input w-full px-4 py-2 rounded-lg">
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-300">H Weight (Height Spacing)</label>
+            <input type="number" id="hWeight" value="0.8" min="0" max="2" step="0.1" class="cyber-input w-full px-4 py-2 rounded-lg">
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-300">Transparent Background</label>
+            <select id="transparentBgColor" class="cyber-input w-full px-4 py-2 rounded-lg">
+              <option value="&f">White</option>
+              <option value="&0">Black</option>
+              <option value="&1">Dark Blue</option>
+              <option value="&2">Dark Green</option>
+              <option value="&3">Dark Aqua</option>
+              <option value="&4">Dark Red</option>
+              <option value="&5">Dark Purple</option>
+              <option value="&6">Gold</option>
+              <option value="&7">Gray</option>
+              <option value="&8">Dark Gray</option>
+              <option value="&9">Blue</option>
+              <option value="&a">Green</option>
+              <option value="&b">Aqua</option>
+              <option value="&c">Red</option>
+              <option value="&d">Light Purple</option>
+              <option value="&e">Yellow</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Controls Row 2 - Checkboxes -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <input type="checkbox" id="exceedLimit" class="sr-only">
+            <div class="relative">
+              <input type="checkbox" id="exceedLimit" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
+            </div>
+            <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Exceed 256 characters limit</span>
+          </label>
+          
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <input type="checkbox" id="onlyMcColor" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
+            <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Only Minecraft color codes</span>
+          </label>
+          
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <input type="checkbox" id="bwMode" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
+            <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Black & White mode</span>
+          </label>
+        </div>
+
+        <!-- File Upload -->
+        <div class="mb-6">
+          <div class="flex items-center justify-center w-full">
+            <label for="imgInput" id="uploadLabel" class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-neon-blue rounded-lg cursor-pointer hover:bg-gray-900 hover:border-neon-purple transition-all duration-300 group">
+              <div id="uploadContent" class="flex flex-col items-center justify-center pt-5 pb-6">
+                <svg id="uploadIcon" class="w-12 h-12 mb-4 text-neon-blue group-hover:text-neon-purple transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <p class="mb-2 text-sm text-gray-300 group-hover:text-white">
+                  <span class="font-semibold">Click to upload</span> or drag and drop
+                </p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+              </div>
+              <input id="imgInput" type="file" accept="image/*" class="hidden">
+            </label>
+          </div>
+          
+          <!-- Image Preview Section -->
+          <div id="imagePreview" class="mt-6 hidden">
+            <div class="glass-effect rounded-lg p-4 border border-neon-blue/30">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0">
+                  <img id="previewImage" class="w-24 h-24 object-cover rounded-lg border-2 border-neon-blue/50" alt="Preview">
+                </div>
+                <div class="flex-1">
+                  <h4 class="text-lg font-semibold text-neon-blue mb-1">Uploaded Image</h4>
+                  <p id="fileName" class="text-gray-300 text-sm mb-1"></p>
+                  <p id="fileSize" class="text-gray-500 text-xs mb-2"></p>
+                  <div id="imageDimensions" class="text-neon-purple text-xs"></div>
+                </div>
+                <button id="removeImage" class="text-red-400 hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-400/10">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="text-center">
+          <button id="convertBtn" onclick="convertImage()" disabled class="cyber-button px-8 py-3 rounded-lg text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed">
+            <span class="relative z-10">Convert to Hologram</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Output Section -->
+      <div id="outputSection" class="hidden">
+        <div class="space-y-8">
+          <!-- Holo Commands -->
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-neon-purple flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Minecraft Holo Commands
+            </h3>
+            <div id="holoCommandsContainer" class="space-y-3">
+              <!-- Holo commands will be generated here -->
+            </div>
+          </div>
+          
+          <!-- Preview -->
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-neon-pink flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+              </svg>
+              Live Preview
+            </h3>
+            <div id="preview" class="pixel-preview cyber-input p-4 rounded-lg min-h-64 overflow-x-auto text-2xl leading-none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
+    <!-- Text Hologram Generator -->
+    <div class="glass-effect rounded-2xl p-8 hover-glow">
+      <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-pink neon-text mb-8 text-center">
+        Text Hologram Generator
+      </h2>
+      
+      <!-- Text Input -->
+      <div class="mb-8">
+        <label class="block text-lg font-medium text-gray-300 mb-3">Enter Your Text</label>
+        <textarea id="holoText" placeholder="Type your hologram text here..." class="cyber-input w-full h-24 p-4 rounded-lg resize-none text-lg"></textarea>
+      </div>
+
+      <!-- Settings Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">Character Color</label>
+          <select id="holoColor" class="cyber-input w-full px-4 py-2 rounded-lg">
+            <option value="&0">Black</option>
+            <option value="&1">Dark Blue</option>
+            <option value="&2">Dark Green</option>
+            <option value="&3">Dark Aqua</option>
+            <option value="&4">Dark Red</option>
+            <option value="&5">Dark Purple</option>
+            <option value="&6">Gold</option>
+            <option value="&7">Gray</option>
+            <option value="&8">Dark Gray</option>
+            <option value="&9">Blue</option>
+            <option value="&a">Green</option>
+            <option value="&b">Aqua</option>
+            <option value="&c">Red</option>
+            <option value="&d">Light Purple</option>
+            <option value="&e">Yellow</option>
+            <option value="&f">White</option>
+          </select>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">Background Color</label>
+          <select id="holoBgColor" class="cyber-input w-full px-4 py-2 rounded-lg">
+            <option value="&f">White</option>
+            <option value="&0">Black</option>
+            <option value="&1">Dark Blue</option>
+            <option value="&2">Dark Green</option>
+            <option value="&3">Dark Aqua</option>
+            <option value="&4">Dark Red</option>
+            <option value="&5">Dark Purple</option>
+            <option value="&6">Gold</option>
+            <option value="&7">Gray</option>
+            <option value="&8">Dark Gray</option>
+            <option value="&9">Blue</option>
+            <option value="&a">Green</option>
+            <option value="&b">Aqua</option>
+            <option value="&c">Red</option>
+            <option value="&d">Light Purple</option>
+            <option value="&e">Yellow</option>
+          </select>
+        </div>
+        
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">Character Height</label>
+          <input type="number" id="holoMaxHeight" value="5" min="1" max="10" class="cyber-input w-full px-4 py-2 rounded-lg">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">Border Wrap</label>
+          <input type="number" id="holoWrap" value="1" min="0" max="10" class="cyber-input w-full px-4 py-2 rounded-lg">
+        </div>
+        
+        <div class="space-y-2">
+          <label class="flex items-center space-x-3 cursor-pointer group">
+            <input type="checkbox" id="holoInputColor" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
+            <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Enable Input Color Codes</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <div class="text-center mb-8">
+        <button onclick="generateTextHologram()" class="cyber-button px-8 py-3 rounded-lg text-lg font-bold">
+          <span class="relative z-10 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+            Generate Text Hologram
+          </span>
+        </button>
+      </div>
+
+      <!-- Text Output Section -->
+      <div id="textOutputSection" class="hidden">
+        <div class="space-y-8">
+          <!-- Code Output -->
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-neon-purple flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+              </svg>
+              Hologram Commands
+            </h3>
+            <textarea id="textHoloOutput" readonly class="w-full h-64 cyber-input p-4 rounded-lg font-mono text-sm resize-none"></textarea>
+          </div>
+          
+          <!-- Preview -->
+          <div class="space-y-4">
+            <h3 class="text-xl font-bold text-neon-pink flex items-center">
+              <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
+              </svg>
+              Text Preview
+            </h3>
+            <div id="textHoloPreview" class="pixel-preview cyber-input p-4 rounded-lg min-h-64 overflow-x-auto text-3xl leading-none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-12 text-gray-500">
+      <p class="text-sm">
+        Made with ❤️ for Minecraft builders | 
+        <span class="text-neon-blue">Cyber Hologram Generator</span>
+      </p>
+    </div>
+  </div>
+
+  <canvas id="canvas" class="hidden"></canvas>
+  <script>
+    let img = new Image();
+    let imgLoaded = false;
+    let originalImgDataUrl = null;
+
+    // Loading functions
+    function showLoading() {
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      document.getElementById('outputSection').classList.add('hidden');
+      animateProgress();
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+      document.getElementById('outputSection').classList.remove('hidden');
+    }
+
+    function animateProgress() {
+      const progressBar = document.getElementById('progressBar');
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+        }
+        progressBar.style.width = progress + '%';
+      }, 200);
+    }
+
+    function showTextOutput() {
+      document.getElementById('textOutputSection').classList.remove('hidden');
+    }
+
+    // Drag and drop functionality
+    const uploadLabel = document.getElementById('uploadLabel');
+    const uploadContent = document.getElementById('uploadContent');
+    const uploadIcon = document.getElementById('uploadIcon');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImage = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const imageDimensions = document.getElementById('imageDimensions');
+    const removeImageBtn = document.getElementById('removeImage');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      uploadLabel.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop area when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadLabel.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadLabel.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    uploadLabel.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      uploadLabel.classList.add('border-neon-purple', 'bg-gray-900', 'border-4');
+      uploadLabel.classList.remove('border-neon-blue', 'border-2');
+      uploadContent.innerHTML = `
+        <svg class="w-16 h-16 mb-4 text-neon-purple animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="text-lg font-semibold text-neon-purple animate-pulse">Drop your image here!</p>
+      `;
+    }
+
+    function unhighlight(e) {
+      uploadLabel.classList.remove('border-neon-purple', 'bg-gray-900', 'border-4');
+      uploadLabel.classList.add('border-neon-blue', 'border-2');
+      uploadContent.innerHTML = `
+        <svg id="uploadIcon" class="w-12 h-12 mb-4 text-neon-blue group-hover:text-neon-purple transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+        <p class="mb-2 text-sm text-gray-300 group-hover:text-white">
+          <span class="font-semibold">Click to upload</span> or drag and drop
+        </p>
+        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+      `;
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.type.startsWith('image/')) {
+          handleImageFile(file);
+        } else {
+          alert('Please select an image file (PNG, JPG, GIF)');
+        }
+      }
+    }
+
+    function handleImageFile(file) {
+      // Update file info
+      fileName.textContent = file.name;
+      fileSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // Set preview image
+        previewImage.src = e.target.result;
+        
+        // Load image to get dimensions
+        const tempImg = new Image();
+        tempImg.onload = function() {
+          imageDimensions.textContent = `${tempImg.width} × ${tempImg.height} pixels`;
+        };
+        tempImg.src = e.target.result;
+        
+        // Set main image
+        img.src = e.target.result;
+        originalImgDataUrl = e.target.result;
+        
+        // Show preview section
+        imagePreview.classList.remove('hidden');
+        
+        // Hide upload content and show uploaded state
+        uploadContent.innerHTML = `
+          <svg class="w-8 h-8 mb-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          <p class="text-sm text-green-400 font-medium">Image uploaded successfully!</p>
+          <p class="text-xs text-gray-500 mt-1">Click to upload a different image</p>
+        `;
+        
+        uploadLabel.classList.add('border-green-400');
+        uploadLabel.classList.remove('border-neon-blue');
+        
+        document.getElementById('convertBtn').disabled = true;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Remove image function
+    removeImageBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      // Reset everything
+      img.src = '';
+      imgLoaded = false;
+      originalImgDataUrl = null;
+      
+      // Hide preview
+      imagePreview.classList.add('hidden');
+      
+      // Reset upload area
+      uploadLabel.classList.remove('border-green-400');
+      uploadLabel.classList.add('border-neon-blue');
+      unhighlight();
+      
+      // Reset button
+      document.getElementById('convertBtn').disabled = true;
+      
+      // Clear file input
+      document.getElementById('imgInput').value = '';
+    });
+
+    document.getElementById('imgInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      handleImageFile(file);
+    });
+
+    img.onload = function() {
+      imgLoaded = true;
+      document.getElementById('convertBtn').disabled = false;
+      
+      // Add success animation
+      const button = document.getElementById('convertBtn');
+      button.classList.add('animate-pulse');
+      setTimeout(() => {
+        button.classList.remove('animate-pulse');
+      }, 1000);
+    };
+
+    function rgbToMinecraftCode(r, g, b) {
+      // Convert to 2-digit hex
+      const hex = n => n.toString(16).padStart(2, '0');
+      return `&x&${hex(r)[0]}&${hex(r)[1]}&${hex(g)[0]}&${hex(g)[1]}&${hex(b)[0]}&${hex(b)[1]}`;
+    }
+
+    function rgbToCss(r, g, b) {
+      return `rgb(${r},${g},${b})`;
+    }
+
+    function getMinecraftColorCode(r, g, b) {
+      // Map of hex colors to Minecraft codes
+      const colorMap = {
+        '000000': '&0',
+        '0000aa': '&1',
+        '00aa00': '&2',
+        '00aaaa': '&3',
+        'aa0000': '&4',
+        'aa00aa': '&5',
+        'ffaa00': '&6',
+        'aaaaaa': '&7',
+        '555555': '&8',
+        '5555ff': '&9',
+        '55ff55': '&a',
+        '55ffff': '&b',
+        'ff5555': '&c',
+        'ff55ff': '&d',
+        'ffff55': '&e',
+        'ffffff': '&f'
+      };
+      const hex = n => n.toString(16).padStart(2, '0');
+      const hexColor = (hex(r) + hex(g) + hex(b)).toLowerCase();
+      return colorMap[hexColor] || null;
+    }
+
+    // Minecraft color palette for closest color matching
+    const mcColors = [
+      {hex: '000000', code: '&0', r:0, g:0, b:0},
+      {hex: '0000aa', code: '&1', r:0, g:0, b:170},
+      {hex: '00aa00', code: '&2', r:0, g:170, b:0},
+      {hex: '00aaaa', code: '&3', r:0, g:170, b:170},
+      {hex: 'aa0000', code: '&4', r:170, g:0, b:0},
+      {hex: 'aa00aa', code: '&5', r:170, g:0, b:170},
+      {hex: 'ffaa00', code: '&6', r:255, g:170, b:0},
+      {hex: 'aaaaaa', code: '&7', r:170, g:170, b:170},
+      {hex: '555555', code: '&8', r:85, g:85, b:85},
+      {hex: '5555ff', code: '&9', r:85, g:85, b:255},
+      {hex: '55ff55', code: '&a', r:85, g:255, b:85},
+      {hex: '55ffff', code: '&b', r:85, g:255, b:255},
+      {hex: 'ff5555', code: '&c', r:255, g:85, b:85},
+      {hex: 'ff55ff', code: '&d', r:255, g:85, b:255},
+      {hex: 'ffff55', code: '&e', r:255, g:255, b:85},
+      {hex: 'ffffff', code: '&f', r:255, g:255, b:255}
+    ];
+
+    function getClosestMinecraftColor(r, g, b) {
+      let minDist = Infinity;
+      let best = mcColors[0];
+      for (const c of mcColors) {
+        const dr = r - c.r, dg = g - c.g, db = b - c.b;
+        // Weighted RGB distance for perceptual similarity
+        const dist = 0.3 * dr * dr + 0.59 * dg * dg + 0.11 * db * db;
+        if (dist < minDist) {
+          minDist = dist;
+          best = c;
+        }
+      }
+      return best.code;
+    }
+
+    function getClosestBWColor(r, g, b) {
+      // Only allow &0 (black), &f (white), &7 (gray), &8 (dark gray)
+      const bwColors = [
+        {code: '&0', r:0, g:0, b:0},
+        {code: '&f', r:255, g:255, b:255},
+        {code: '&7', r:170, g:170, b:170},
+        {code: '&8', r:85, g:85, b:85}
+      ];
+      let minDist = Infinity;
+      let best = bwColors[0];
+      for (const c of bwColors) {
+        const dr = r - c.r, dg = g - c.g, db = b - c.b;
+        const dist = 0.3 * dr * dr + 0.59 * dg * dg + 0.11 * db * db;
+        if (dist < minDist) {
+          minDist = dist;
+          best = c;
+        }
+      }
+      return best.code;
+    }
+
+    function convertImage() {
+      if (!imgLoaded || !originalImgDataUrl) {
+        alert('Please upload an image first!');
+        return;
+      }
+      
+      showLoading();
+      
+      // Simulate processing time for animation
+      setTimeout(() => {
+        processImage();
+      }, 500);
+    }
+
+    function processImage() {
+      document.getElementById('convertBtn').disabled = true;
+      // Always use a new Image object for every conversion
+      let workingImg = new window.Image();
+      workingImg.onload = function() {
+        document.getElementById('convertBtn').disabled = false;
+        const maxWidthInput = parseInt(document.getElementById('widthInput').value, 10);
+        const hWeight = parseFloat(document.getElementById('hWeight').value);
+        let maxWidth = maxWidthInput;
+        const exceedLimit = document.getElementById('exceedLimit').checked;
+        const onlyMcColor = document.getElementById('onlyMcColor').checked;
+        const bwMode = document.getElementById('bwMode').checked;
+        const transparentBgColor = document.getElementById('transparentBgColor').value;
+        const outputPixelChar = document.getElementById('outputPixelChar').value;
+
+        // Calculate new height to keep aspect ratio
+        const scale = maxWidth / workingImg.width;
+        const newHeight = Math.round(workingImg.height * scale);
+
+        const canvas = document.getElementById('canvas');
+        canvas.width = maxWidth;
+        canvas.height = newHeight;
+        const ctx = canvas.getContext('2d');
+        // Clear the canvas before drawing
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.imageSmoothingEnabled = true;
+        if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(workingImg, 0, 0, maxWidth, newHeight);
+
+        const imgData = ctx.getImageData(0, 0, maxWidth, newHeight).data;
+        let outputLines = [];
+        let previewHtml = '';
+        
+        // Process each line
+        for (let y = 0; y < newHeight; y++) {
+          let pixelBlocks = [];
+          let previewLine = '';
+          let prevColor = null;
+          for (let x = 0; x < maxWidth; x++) {
+            const idx = (y * maxWidth + x) * 4;
+            const r = imgData[idx];
+            const g = imgData[idx + 1];
+            const b = imgData[idx + 2];
+            const a = imgData[idx + 3];
+            let colorCode;
+            let previewR = r, previewG = g, previewB = b;
+            let pixelChar = outputPixelChar;
+            if (a === 0) {
+              // Transparent pixel: always use selected MC color
+              colorCode = transparentBgColor;
+              // Set preview color for selected MC color
+              const mc = mcColors.find(c => c.code === transparentBgColor);
+              if (mc) { previewR = mc.r; previewG = mc.g; previewB = mc.b; }
+              pixelChar = outputPixelChar;
+            } else if (bwMode) {
+              colorCode = getClosestBWColor(r, g, b);
+              if (colorCode === '&0') { previewR = 0; previewG = 0; previewB = 0; }
+              else if (colorCode === '&f') { previewR = 255; previewG = 255; previewB = 255; }
+              else if (colorCode === '&7') { previewR = 170; previewG = 170; previewB = 170; }
+              else if (colorCode === '&8') { previewR = 85; previewG = 85; previewB = 85; }
+              pixelChar = outputPixelChar;
+            } else if (onlyMcColor) {
+              const shortCode = getMinecraftColorCode(r, g, b);
+              if (shortCode) {
+                colorCode = shortCode;
+                const mc = mcColors.find(c => c.code === shortCode);
+                if (mc) { previewR = mc.r; previewG = mc.g; previewB = mc.b; }
+              } else {
+                const closestCode = getClosestMinecraftColor(r, g, b);
+                colorCode = closestCode;
+                const mc = mcColors.find(c => c.code === closestCode);
+                if (mc) { previewR = mc.r; previewG = mc.g; previewB = mc.b; }
+              }
+              pixelChar = outputPixelChar;
+            } else {
+              const shortCode = getMinecraftColorCode(r, g, b);
+              colorCode = shortCode ? shortCode : rgbToMinecraftCode(r, g, b);
+              pixelChar = outputPixelChar;
+            }
+            // Group by colorCode+pixelChar in all modes
+            let colorKey = (bwMode || onlyMcColor || a === 0) ? colorCode + pixelChar : `${r},${g},${b}` + pixelChar;
+            if (prevColor === null || colorKey !== prevColor) {
+              pixelBlocks.push({ code: colorCode, char: pixelChar, count: 1 });
+              prevColor = colorKey;
+            } else {
+              pixelBlocks[pixelBlocks.length - 1].count++;
+            }
+            previewLine += `<span style=\"color:${rgbToCss(previewR,previewG,previewB)}\">${pixelChar === ' ' ? '&nbsp;' : '■'}</span>`;
+          }
+          
+          // Process line into chunks
+          if (exceedLimit) {
+            let merged = pixelBlocks.map(b => b.code + b.char.repeat(b.count)).join('');
+            outputLines.push({ lineNum: y + 1, chunks: [merged] });
+          } else {
+            let chunkIndex = 0;
+            let chunk = '';
+            let charsThisLine = 0;
+            let chunks = [];
+            
+            for (let i = 0; i < pixelBlocks.length; i++) {
+              let { code, char, count } = pixelBlocks[i];
+              let codeLen = code.length;
+              while (count > 0) {
+                if (charsThisLine + codeLen + 1 > 256) {
+                  chunks.push(chunk);
+                  chunkIndex++;
+                  chunk = '';
+                  charsThisLine = 0;
+                }
+                if (chunk === '' || !chunk.endsWith(code)) {
+                  chunk += code;
+                  charsThisLine += codeLen;
+                }
+                let room = 256 - charsThisLine;
+                let addCount = Math.min(room, count);
+                chunk += char.repeat(addCount);
+                charsThisLine += addCount;
+                count -= addCount;
+                if (charsThisLine === 256) {
+                  chunks.push(chunk);
+                  chunkIndex++;
+                  chunk = '';
+                  charsThisLine = 0;
+                }
+              }
+            }
+            if (chunk.length > 0) {
+              chunks.push(chunk);
+            }
+            outputLines.push({ lineNum: y + 1, chunks });
+          }
+          previewHtml += previewLine + '\n';
+        }
+        
+        // Generate Holo structure
+        generateHoloStructure(outputLines, hWeight, newHeight);
+        document.getElementById('preview').innerHTML = previewHtml;
+        
+        hideLoading();
+      };
+      workingImg.src = originalImgDataUrl;
+    }
+    
+    function generateHoloStructure(outputLines, hWeight, totalLines) {
+      const container = document.getElementById('holoCommandsContainer');
+      container.innerHTML = '';
+      
+      // Calculate H positions (from bottom to top)
+      const holoData = [];
+      let currentH = totalLines + 1; // Last holo position
+      
+      for (let i = outputLines.length - 1; i >= 0; i--) {
+        const line = outputLines[i];
+        holoData.unshift({
+          holoNum: line.lineNum,
+          hPosition: currentH.toFixed(1),
+          chunks: line.chunks
+        });
+        currentH -= hWeight;
+      }
+      
+      // Generate HTML for each holo
+      holoData.forEach(holo => {
+        const holoDiv = document.createElement('div');
+        holoDiv.className = 'holo-item';
+        holoDiv.innerHTML = `
+          <div class="holo-header" onclick="toggleHolo(${holo.holoNum})">
+            <span class="text-neon-blue font-semibold">
+              Holo ${holo.holoNum} (Vị trí H: ${holo.hPosition})
+            </span>
+            <svg class="chevron w-5 h-5 text-neon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+          <div class="holo-content" id="content-${holo.holoNum}">
+            ${holo.chunks.map((chunk, index) => `
+              <div class="holo-subitem">
+                <div class="flex-1">
+                  <span class="text-gray-300 text-sm">${holo.holoNum}.${index + 1}:</span>
+                  <code class="text-neon-purple text-xs ml-2 break-all">${chunk}</code>
+                </div>
+                <button class="copy-btn ml-4" onclick="copyToClipboard('${chunk.replace(/'/g, "\\'")}', this)">
+                  Copy
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(holoDiv);
+      });
+    }
+    
+    function toggleHolo(holoNum) {
+      const content = document.getElementById(`content-${holoNum}`);
+      const chevron = content.previousElementSibling.querySelector('.chevron');
+      
+      if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        chevron.classList.remove('rotated');
+      } else {
+        content.classList.add('expanded');
+        chevron.classList.add('rotated');
+      }
+    }
+    
+    function copyToClipboard(text, button) {
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.textContent;
+        button.textContent = 'Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Failed to copy: ', err);
+        alert('Failed to copy to clipboard');
+      });
+    }
+
+    // 5x5 pixel font for a-z and A-Z
+    const pixelFont5x5 = {
+      a: [' 111 ', '1   1', '11111', '1   1', '1   1'],
+      b: ['1111 ', '1   1', '1111 ', '1   1', '1111 '],
+      c: [' 111 ', '1   1', '1    ', '1   1', ' 111 '],
+      d: ['1111 ', '1   1', '1   1', '1   1', '1111 '],
+      e: ['11111', '1    ', '1111 ', '1    ', '11111'],
+      f: ['11111', '1    ', '1111 ', '1    ', '1    '],
+      g: [' 1111', '1    ', '1 111', '1   1', ' 1111'],
+      h: ['1   1', '1   1', '11111', '1   1', '1   1'],
+      i: [' 111 ', '  1  ', '  1  ', '  1  ', ' 111 '],
+      j: ['  111', '   1 ', '   1 ', '1  1 ', ' 11  '],
+      k: ['1   1', '1  1 ', '111  ', '1  1 ', '1   1'],
+      l: ['1    ', '1    ', '1    ', '1    ', '11111'],
+      m: ['1   1', '11 11', '1 1 1', '1   1', '1   1'],
+      n: ['1   1', '11  1', '1 1 1', '1  11', '1   1'],
+      o: [' 111 ', '1   1', '1   1', '1   1', ' 111 '],
+      p: ['1111 ', '1   1', '1111 ', '1    ', '1    '],
+      q: [' 111 ', '1   1', '1   1', '1  1 ', ' 11 1'],
+      r: ['1111 ', '1   1', '1111 ', '1  1 ', '1   1'],
+      s: [' 1111', '1    ', ' 111 ', '    1', '1111 '],
+      t: ['11111', '  1  ', '  1  ', '  1  ', '  1  '],
+      u: ['1   1', '1   1', '1   1', '1   1', ' 111 '],
+      v: ['1   1', '1   1', '1   1', ' 1 1 ', '  1  '],
+      w: ['1   1', '1   1', '1 1 1', '11 11', '1   1'],
+      x: ['1   1', ' 1 1 ', '  1  ', ' 1 1 ', '1   1'],
+      y: ['1   1', ' 1 1 ', '  1  ', '  1  ', '  1  '],
+      z: ['11111', '   1 ', '  1  ', ' 1   ', '11111'],
+      A: [' 111 ', '1   1', '11111', '1   1', '1   1'],
+      B: ['1111 ', '1   1', '1111 ', '1   1', '1111 '],
+      C: [' 111 ', '1   1', '1    ', '1   1', ' 111 '],
+      D: ['1111 ', '1   1', '1   1', '1   1', '1111 '],
+      E: ['11111', '1    ', '1111 ', '1    ', '11111'],
+      F: ['11111', '1    ', '1111 ', '1    ', '1    '],
+      G: [' 1111', '1    ', '1 111', '1   1', ' 1111'],
+      H: ['1   1', '1   1', '11111', '1   1', '1   1'],
+      I: [' 111 ', '  1  ', '  1  ', '  1  ', ' 111 '],
+      J: ['  111', '   1 ', '   1 ', '1  1 ', ' 11  '],
+      K: ['1   1', '1  1 ', '111  ', '1  1 ', '1   1'],
+      L: ['1    ', '1    ', '1    ', '1    ', '11111'],
+      M: ['1   1', '11 11', '1 1 1', '1   1', '1   1'],
+      N: ['1   1', '11  1', '1 1 1', '1  11', '1   1'],
+      O: [' 111 ', '1   1', '1   1', '1   1', ' 111 '],
+      P: ['1111 ', '1   1', '1111 ', '1    ', '1    '],
+      Q: [' 111 ', '1   1', '1   1', '1  1 ', ' 11 1'],
+      R: ['1111 ', '1   1', '1111 ', '1  1 ', '1   1'],
+      S: [' 1111', '1    ', ' 111 ', '    1', '1111 '],
+      T: ['11111', '  1  ', '  1  ', '  1  ', '  1  '],
+      U: ['1   1', '1   1', '1   1', '1   1', ' 111 '],
+      V: ['1   1', '1   1', '1   1', ' 1 1 ', '  1  '],
+      W: ['1   1', '1   1', '1 1 1', '11 11', '1   1'],
+      X: ['1   1', ' 1 1 ', '  1  ', ' 1 1 ', '1   1'],
+      Y: ['1   1', ' 1 1 ', '  1  ', '  1  ', '  1  '],
+      Z: ['11111', '   1 ', '  1  ', ' 1   ', '11111'],
+    };
+
+    // Numbers
+    pixelFont5x5['0'] = [' 111 ', '1  11', '1 1 1', '11  1', ' 111 '];
+    pixelFont5x5['1'] = ['  1  ', ' 11  ', '  1  ', '  1  ', ' 111 '];
+    pixelFont5x5['2'] = [' 111 ', '1   1', '   1 ', '  1  ', '11111'];
+    pixelFont5x5['3'] = ['1111 ', '    1', ' 111 ', '    1', '1111 '];
+    pixelFont5x5['4'] = ['   1 ', '  11 ', ' 1 1 ', '11111', '   1 '];
+    pixelFont5x5['5'] = ['11111', '1    ', '1111 ', '    1', '1111 '];
+    pixelFont5x5['6'] = [' 111 ', '1    ', '1111 ', '1   1', ' 111 '];
+    pixelFont5x5['7'] = ['11111', '    1', '   1 ', '  1  ', ' 1   '];
+    pixelFont5x5['8'] = [' 111 ', '1   1', ' 111 ', '1   1', ' 111 '];
+    pixelFont5x5['9'] = [' 111 ', '1   1', ' 1111', '    1', ' 111 '];
+    // Symbols
+    pixelFont5x5['?'] = [' 111 ', '    1', '  11 ', '     ', '  1  '];
+    pixelFont5x5['!'] = ['  1  ', '  1  ', '  1  ', '     ', '  1  '];
+    pixelFont5x5['.'] = ['     ', '     ', '     ', '     ', '  1  '];
+    pixelFont5x5[','] = ['     ', '     ', '     ', '  1  ', ' 1   '];
+    pixelFont5x5['`'] = [' 1   ', '  1  ', '     ', '     ', '     '];
+    pixelFont5x5["'"] = [' 1   ', ' 1   ', '     ', '     ', '     '];
+    pixelFont5x5['~'] = ['     ', '     ', ' 1 1 ', '1 1  ', '     '];
+    pixelFont5x5['|'] = ['  1  ', '  1  ', '  1  ', '  1  ', '  1  '];
+    pixelFont5x5['['] = [' 111 ', ' 1   ', ' 1   ', ' 1   ', ' 111 '];
+    pixelFont5x5[']'] = [' 111 ', '   1 ', '   1 ', '   1 ', ' 111 '];
+    pixelFont5x5['('] = ['  11 ', ' 1   ', ' 1   ', ' 1   ', '  11 '];
+    pixelFont5x5[')'] = [' 11  ', '   1 ', '   1 ', '   1 ', ' 11  '];
+    pixelFont5x5['-'] = ['     ', '     ', ' 111 ', '     ', '     '];
+    pixelFont5x5['_'] = ['     ', '     ', '     ', '     ', '11111'];
+    pixelFont5x5['='] = ['     ', ' 111 ', '     ', ' 111 ', '     '];
+    pixelFont5x5['+'] = ['     ', '  1  ', ' 111 ', '  1  ', '     '];
+    pixelFont5x5['*'] = ['     ', '1 1 1', ' 111 ', '1 1 1', '     '];
+    pixelFont5x5['&'] = [' 11  ', '1 1  ', ' 11  ', '1 1 1', ' 1111'];
+    pixelFont5x5['^'] = ['  1  ', ' 1 1 ', '     ', '     ', '     '];
+    pixelFont5x5['%'] = ['1   1', '   1 ', '  1  ', ' 1   ', '1   1'];
+    pixelFont5x5['$'] = [' 111 ', '1 1  ', ' 1111', '  1 1', '1111 '];
+    pixelFont5x5['#'] = [' 1 1 ', '11111', ' 1 1 ', '11111', ' 1 1 '];
+    pixelFont5x5['@'] = [' 111 ', '1  11', '1 111', '1    ', ' 111 '];
+    pixelFont5x5['\\'] = ['1    ', ' 1   ', '  1  ', '   1 ', '    1'];
+    pixelFont5x5['/'] = ['    1', '   1 ', '  1  ', ' 1   ', '1    '];
+    pixelFont5x5['<'] = ['   1 ', '  1  ', ' 1   ', '  1  ', '   1 '];
+    pixelFont5x5['>'] = [' 1   ', '  1  ', '   1 ', '  1  ', ' 1   '];
+    pixelFont5x5[';'] = ['     ', '  1  ', '     ', '  1  ', ' 1   '];
+    pixelFont5x5[':'] = ['     ', '  1  ', '     ', '  1  ', '     '];
+    pixelFont5x5['"'] = [' 1 1 ', ' 1 1 ', '     ', '     ', '     '];
+    pixelFont5x5['{'] = ['  11 ', '  1  ', ' 1   ', '  1  ', '  11 '];
+    pixelFont5x5['}'] = [' 11  ', '  1  ', '   1 ', '  1  ', ' 11  '];
+    pixelFont5x5[' '] = ['     ', '     ', '     ', '     ', '     '];
+    //Emojis
+    pixelFont5x5[':heart:'] = [' 1 1 ', '1 1 1', '1   1', ' 1 1 ', '  1  '];
+
+    // Helper to scale a 5x5 font bitmap to target height and width
+    function scaleFontBitmap(bitmap, targetHeight, targetWidth) {
+      const srcHeight = bitmap.length;
+      const srcWidth = bitmap[0].length;
+      let scaled = [];
+      for (let y = 0; y < targetHeight; y++) {
+        let srcY = Math.floor(y * srcHeight / targetHeight);
+        let row = '';
+        for (let x = 0; x < targetWidth; x++) {
+          let srcX = Math.floor(x * srcWidth / targetWidth);
+          row += bitmap[srcY][srcX];
+        }
+        scaled.push(row);
+      }
+      return scaled;
+    }
+
+    // Helper: interpolate between two hex colors, return Minecraft code (short if possible)
+    function interpolateHexColor(hex1, hex2, t) {
+      const r1 = parseInt(hex1.slice(0,2), 16), g1 = parseInt(hex1.slice(2,4), 16), b1 = parseInt(hex1.slice(4,6), 16);
+      const r2 = parseInt(hex2.slice(0,2), 16), g2 = parseInt(hex2.slice(2,4), 16), b2 = parseInt(hex2.slice(4,6), 16);
+      const r = Math.round(r1 + (r2 - r1) * t);
+      const g = Math.round(g1 + (g2 - g1) * t);
+      const b = Math.round(b1 + (b2 - b1) * t);
+      const hex = n => n.toString(16).padStart(2, '0');
+      let hexStr = hex(r) + hex(g) + hex(b);
+      let code = hexToMinecraftCode(hexStr);
+      if (code) return code;
+      let mc = '&x';
+      for (let v of [r, g, b]) {
+        let h = hex(v);
+        mc += '&' + h[0] + '&' + h[1];
+      }
+      return mc;
+    }
+
+    // Updated tokenizer with gradient support
+    function tokenizeColoredText(line, defaultColor) {
+      const tokens = [];
+      let color = defaultColor;
+      let i = 0;
+      while (i < line.length) {
+        // Gradient start: </#HEX>
+        if (line.startsWith('</#', i)) {
+          let startHex = line.slice(i + 3, i + 9);
+          if (/^[0-9a-fA-F]{6}$/.test(startHex) && line[i + 9] === '>') {
+            i += 10;
+            // Find the next <#HEX/>
+            let gradEndIdx = line.indexOf('<#', i);
+            let gradEndCloseIdx = gradEndIdx !== -1 ? line.indexOf('/>', gradEndIdx) : -1;
+            if (gradEndIdx !== -1 && gradEndCloseIdx !== -1 && gradEndCloseIdx - gradEndIdx === 8) {
+              let endHex = line.slice(gradEndIdx + 2, gradEndIdx + 8);
+              if (/^[0-9a-fA-F]{6}$/.test(endHex)) {
+                let gradText = line.slice(i, gradEndIdx);
+                // Tokenize gradText as emoji/shortcode aware
+                let gradChars = [];
+                let j = 0;
+                while (j < gradText.length) {
+                  let emojiMatch = gradText.slice(j).match(/^(:[a-z_]+:|[\u{1F300}-\u{1F6FF}])/u);
+                  if (emojiMatch) {
+                    gradChars.push(emojiMatch[0]);
+                    j += emojiMatch[0].length;
+                  } else {
+                    gradChars.push(gradText[j]);
+                    j++;
+                  }
+                }
+                for (let c = 0; c < gradChars.length; c++) {
+                  let t = gradChars.length === 1 ? 0 : c / (gradChars.length - 1);
+                  let mc = interpolateHexColor(startHex, endHex, t);
+                  tokens.push({ char: gradChars[c], color: mc });
+                }
+                i = gradEndCloseIdx + 2;
+                continue;
+              }
+            }
+          }
+        }
+        // &x&F&F&F&F&F&F (Minecraft RGB)
+        if (line.startsWith('&x', i) && line.length - i >= 14) {
+          let hex = '';
+          for (let j = 0; j < 6; j++) {
+            hex += line[i + 3 + j * 2] + line[i + 4 + j * 2];
+          }
+          let code = hexToMinecraftCode(hex);
+          if (!code) {
+            code = line.slice(i, i + 14);
+          }
+          color = code;
+          i += 14;
+          continue;
+        }
+        // <#RRGGBB> (hex color)
+        if (line.startsWith('<#', i) && line.length - i >= 9) {
+          let hex = line.slice(i + 2, i + 8);
+          if (/^[0-9a-fA-F]{6}$/.test(hex) && line[i + 8] === '>') {
+            let code = hexToMinecraftCode(hex);
+            if (!code) {
+              code = '&x';
+              for (let j = 0; j < 6; j++) code += '&' + hex[j];
+            }
+            color = code;
+            i += 9;
+            continue;
+          }
+        }
+        // &r resets to defaultColor
+        if (line.startsWith('&r', i)) {
+          color = defaultColor;
+          i += 2;
+          continue;
+        }
+        // &f, &a, etc.
+        if (line.startsWith('&', i) && line.length - i >= 2 && /[0-9a-f]/i.test(line[i + 1])) {
+          color = line.slice(i, i + 2);
+          i += 2;
+          continue;
+        }
+        // Emoji shortcode or Unicode emoji
+        let emojiMatch = line.slice(i).match(/^(:[a-z_]+:|[\u{1F300}-\u{1F6FF}])/u);
+        if (emojiMatch) {
+          tokens.push({ char: emojiMatch[0], color });
+          i += emojiMatch[0].length;
+          continue;
+        }
+        // Single character
+        tokens.push({ char: line[i], color });
+        i++;
+      }
+      return tokens;
+    }
+
+    function parseColorCode(str, defaultColor) {
+      // Supports &x, &f, <#RRGGBB>, and returns {color, length}
+      if (!str) return { color: defaultColor, length: 0 };
+      // &x&F&F&F&F&F&F (Minecraft RGB)
+      if (str.startsWith('&x') && str.length >= 14) {
+        let hex = '';
+        for (let j = 0; j < 6; j++) {
+          hex += str[3 + j * 2] + str[4 + j * 2];
+        }
+        let code = hexToMinecraftCode(hex);
+        if (!code) {
+          code = str.slice(0, 14);
+        }
+        return { color: code, length: 14 };
+      }
+      // <#RRGGBB>
+      if (str.startsWith('<#') && str.length >= 9) {
+        let hex = str.slice(2, 8);
+        if (/^[0-9a-fA-F]{6}$/.test(hex)) {
+          let code = hexToMinecraftCode(hex);
+          if (!code) {
+            code = '&x';
+            for (let i = 0; i < 6; i++) code += '&' + hex[i];
+          }
+          return { color: code, length: 9 };
+        }
+      }
+      // &f, &a, etc.
+      if (str.startsWith('&') && str.length >= 2 && /[0-9a-f]/i.test(str[1])) {
+        return { color: str.slice(0, 2), length: 2 };
+      }
+      return { color: defaultColor, length: 0 };
+    }
+
+    function renderPixelFontText(text, color, bgColor, charHeight, wrap, inputColor) {
+      const charWidth = 5;
+      const charHeightPx = charHeight;
+      const charWidthPx = Math.round(charHeightPx * (5 / 5));
+      const outputPixelChar = document.getElementById('outputPixelChar') ? document.getElementById('outputPixelChar').value : '█';
+      const lines = text.split(/\n/);
+      let allRows = [];
+      for (let line of lines) {
+        let tokens = inputColor ? tokenizeColoredText(line, color) : (line.match(/(:[a-z_]+:|[\u{1F300}-\u{1F6FF}]|.)/gu) || []).map(ch => ({ char: ch, color }));
+        let charFonts = [];
+        let charColors = [];
+        for (let t = 0; t < tokens.length; t++) {
+          let ch = tokens[t].char;
+          let thisColor = tokens[t].color;
+          let base = pixelFont5x5[ch] || [
+            '     ', '     ', '     ', '     ', '     '
+          ];
+          charFonts.push(scaleFontBitmap(base, charHeightPx, charWidthPx));
+          charColors.push(thisColor);
+        }
+        let grid = [];
+        for (let row = 0; row < charHeightPx; row++) {
+          let gridRow = [];
+          for (let c = 0; c < charFonts.length; c++) {
+            for (let col = 0; col < charWidthPx; col++) {
+              gridRow.push({
+                on: charFonts[c][row][col] === '1',
+                color: charColors[c]
+              });
+            }
+            if (
+              c < charFonts.length - 1 &&
+              tokens[c].char !== ' ' && tokens[c + 1].char !== ' '
+            ) {
+              gridRow.push({ on: false, color: bgColor });
+            }
+          }
+          grid.push(gridRow);
+        }
+        for (let i = 0; i < grid.length; i++) {
+          for (let w = 0; w < wrap; w++) {
+            grid[i].unshift({ on: false, color: bgColor });
+            grid[i].push({ on: false, color: bgColor });
+          }
+        }
+        let width = grid[0].length;
+        let borderRow = Array(width).fill({ on: false, color: bgColor });
+        for (let w = 0; w < wrap; w++) {
+          grid.unshift([...borderRow]);
+          grid.push([...borderRow]);
+        }
+        allRows.push(grid);
+      }
+      let outputBlocks = [];
+      let previewBlocks = [];
+      for (let block of allRows) {
+        let outputRows = [];
+        let previewRows = [];
+        for (let row of block) {
+          let outputLine = '';
+          let previewLine = '';
+          let runColor = null;
+          let runLength = 0;
+          for (let i = 0; i < row.length; i++) {
+            let cell = row[i];
+            let thisColor = cell.on ? cell.color : bgColor;
+            if (runColor === null) {
+              runColor = thisColor;
+              runLength = 1;
+            } else if (thisColor === runColor) {
+              runLength++;
+            } else {
+              outputLine += runColor + outputPixelChar.repeat(runLength);
+              runColor = thisColor;
+              runLength = 1;
+            }
+            previewLine += `<span style=\"color:${minecraftCodeToCss(thisColor)}\">■</span>`;
+          }
+          if (runColor !== null && runLength > 0) {
+            outputLine += runColor + outputPixelChar.repeat(runLength);
+          }
+          outputRows.push(outputLine);
+          previewRows.push(previewLine);
+        }
+        outputBlocks.push(outputRows);
+        previewBlocks.push(previewRows);
+      }
+      return {
+        output: outputBlocks,
+        preview: previewBlocks
+      };
+    }
+
+    function addLinePrefixesAndLimit(lines) {
+      // lines: array of pixel block arrays (each is a line: [block, block, ...])
+      // Returns array of strings with Line N: and Line N.n: prefixes, split to 256 chars max, never splitting a block
+      let result = [];
+      let lineNum = 1;
+      for (let line of lines) {
+        // Split line into pixel blocks (each block is color code + '█', always 3 chars for &f, 14 for rgb)
+        let blocks = [];
+        let i = 0;
+        while (i < line.length) {
+          if (line[i] === '&') {
+            // Find end of color code
+            if (line[i+1] && line[i+1] === 'x') {
+              // rgb code: &x&r&r&g&g&b&b (13 chars) + '█' = 14
+              blocks.push(line.slice(i, i+14));
+              i += 14;
+            } else {
+              // short code: &f + '█' = 3
+              blocks.push(line.slice(i, i+3));
+              i += 3;
+            }
+          } else {
+            // space or other
+            blocks.push(line[i]);
+            i++;
+          }
+        }
+        // Now split blocks into lines of <= 256 chars (including prefix)
+        let chunkIndex = 0;
+        let prefix = `Line ${lineNum}: `;
+        let maxLen = 256 - prefix.length;
+        let current = '';
+        let currentLen = 0;
+        for (let b = 0; b < blocks.length; b++) {
+          let block = blocks[b];
+          if (currentLen + block.length > maxLen) {
+            let thisPrefix = chunkIndex === 0 ? prefix : `Line ${lineNum}.${chunkIndex}: `;
+            result.push(thisPrefix + current);
+            chunkIndex++;
+            maxLen = 256 - (`Line ${lineNum}.${chunkIndex}: `.length);
+            current = '';
+            currentLen = 0;
+          }
+          current += block;
+          currentLen += block.length;
+        }
+        if (current.length > 0) {
+          let thisPrefix = chunkIndex === 0 ? prefix : `Line ${lineNum}.${chunkIndex}: `;
+          result.push(thisPrefix + current);
+        }
+        lineNum++;
+      }
+      return result;
+    }
+
+    function generateTextHologram() {
+      const text = document.getElementById('holoText').value.replace(/\r\n|\r|\n/g, '\n');
+      if (!text.trim()) {
+        alert('Please enter some text first!');
+        return;
+      }
+      
+      const color = document.getElementById('holoColor').value;
+      const charHeight = parseInt(document.getElementById('holoMaxHeight').value, 10);
+      const bgColor = document.getElementById('holoBgColor').value;
+      const wrap = parseInt(document.getElementById('holoWrap').value, 10);
+      const inputColor = document.getElementById('holoInputColor').checked;
+      const { output, preview } = renderPixelFontText(text, color, bgColor, charHeight, wrap, inputColor);
+      let allOutputLines = [];
+      for (const block of output) {
+        allOutputLines.push(...block);
+      }
+      const prefixedLines = addLinePrefixesAndLimit(allOutputLines);
+      document.getElementById('textHoloOutput').value = prefixedLines.join('\n');
+      let allPreviewLines = [];
+      for (const block of preview) {
+        allPreviewLines.push(...block);
+      }
+      document.getElementById('textHoloPreview').innerHTML = allPreviewLines.join('\n');
+      
+      showTextOutput();
+    }
+
+    // Helper to convert Minecraft color code to CSS rgb
+    function minecraftCodeToCss(code) {
+      const map = {
+        '&0': 'rgb(0,0,0)',
+        '&1': 'rgb(0,0,170)',
+        '&2': 'rgb(0,170,0)',
+        '&3': 'rgb(0,170,170)',
+        '&4': 'rgb(170,0,0)',
+        '&5': 'rgb(170,0,170)',
+        '&6': 'rgb(255,170,0)',
+        '&7': 'rgb(170,170,170)',
+        '&8': 'rgb(85,85,85)',
+        '&9': 'rgb(85,85,255)',
+        '&a': 'rgb(85,255,85)',
+        '&b': 'rgb(85,255,255)',
+        '&c': 'rgb(255,85,85)',
+        '&d': 'rgb(255,85,255)',
+        '&e': 'rgb(255,255,85)',
+        '&f': 'rgb(255,255,255)'
+      };
+      if (map[code]) return map[code];
+      // Handle &x hex format: &x&R&R&G&G&B&B
+      if (code && code.startsWith('&x') && code.length === 14) {
+        // Extract hex digits
+        let hex = code.replace(/&x|&/g, '');
+        if (hex.length === 6) {
+          let r = parseInt(hex.slice(0, 2), 16);
+          let g = parseInt(hex.slice(2, 4), 16);
+          let b = parseInt(hex.slice(4, 6), 16);
+          return `rgb(${r},${g},${b})`;
+        }
+      }
+      return 'rgb(255,255,255)';
+    }
+
+    // Helper: convert 6-digit hex string to Minecraft short color code if possible, else null
+    function hexToMinecraftCode(hex) {
+      const map = {
+        '000000': '&0', '0000aa': '&1', '00aa00': '&2', '00aaaa': '&3',
+        'aa0000': '&4', 'aa00aa': '&5', 'ffaa00': '&6', 'aaaaaa': '&7',
+        '555555': '&8', '5555ff': '&9', '55ff55': '&a', '55ffff': '&b',
+        'ff5555': '&c', 'ff55ff': '&d', 'ffff55': '&e', 'ffffff': '&f'
+      };
+      return map[hex.toLowerCase()] || null;
+    }
+  </script>
+</body>
+</html> 
