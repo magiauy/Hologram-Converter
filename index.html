@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Pixel Art Hologram Converter</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="tailwind.min.css">
   <script>
     tailwind.config = {
       theme: {
@@ -264,7 +264,7 @@
   <div class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- Header -->
     <div class="text-center mb-12">
-      <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink neon-text mb-4 animate-float">
+      <h1 class="text-6xl font-black mb-4 animate-float" style="background: linear-gradient(90deg, #00f3ff, #9945ff, #ff10f0); -webkit-background-clip: text; background-clip: text; color: transparent">
         Pixel Art Hologram Converter
       </h1>
       <p class="text-xl text-gray-300 animate-pulse-slow">Transform your images into stunning Minecraft holograms</p>
@@ -282,8 +282,8 @@
         </h2>
         
         <!-- Controls Row 1 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div class="space-y-2">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6" style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div class="space-y-2" style="flex: 1; min-width: 200px;">
             <label class="block text-sm font-medium text-gray-300">Output Pixel Character</label>
             <select id="outputPixelChar" class="cyber-input w-full px-4 py-2 rounded-lg">
               <option value="█">█ (Solid Block)</option>
@@ -291,17 +291,17 @@
             </select>
           </div>
           
-          <div class="space-y-2">
+          <div class="space-y-2" style="flex: 1; min-width: 200px;">
             <label class="block text-sm font-medium text-gray-300">Max Width (pixels)</label>
             <input type="number" id="widthInput" value="18" min="1" max="64" class="cyber-input w-full px-4 py-2 rounded-lg">
           </div>
           
-          <div class="space-y-2">
+          <div class="space-y-2" style="flex: 1; min-width: 200px;">
             <label class="block text-sm font-medium text-gray-300">H Weight (Height Spacing)</label>
             <input type="number" id="hWeight" value="0.8" min="0" max="2" step="0.1" class="cyber-input w-full px-4 py-2 rounded-lg">
           </div>
           
-          <div class="space-y-2">
+          <div class="space-y-2" style="flex: 1; min-width: 200px;">
             <label class="block text-sm font-medium text-gray-300">Transparent Background</label>
             <select id="transparentBgColor" class="cyber-input w-full px-4 py-2 rounded-lg">
               <option value="&f">White</option>
@@ -325,8 +325,8 @@
         </div>
 
         <!-- Controls Row 2 - Checkboxes -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <label class="flex items-center space-x-3 cursor-pointer group">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6" style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem; justify-content: space-around;">
+          <label class="flex items-center space-x-3 cursor-pointer group" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
             <input type="checkbox" id="exceedLimit" class="sr-only">
             <div class="relative">
               <input type="checkbox" id="exceedLimit" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
@@ -334,12 +334,12 @@
             <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Exceed 256 characters limit</span>
           </label>
           
-          <label class="flex items-center space-x-3 cursor-pointer group">
+          <label class="flex items-center space-x-3 cursor-pointer group" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
             <input type="checkbox" id="onlyMcColor" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
             <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Only Minecraft color codes</span>
           </label>
           
-          <label class="flex items-center space-x-3 cursor-pointer group">
+          <label class="flex items-center space-x-3 cursor-pointer group" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
             <input type="checkbox" id="bwMode" class="w-5 h-5 text-neon-blue bg-gray-900 border-gray-600 rounded focus:ring-neon-blue focus:ring-2">
             <span class="text-gray-300 group-hover:text-neon-blue transition-colors">Black & White mode</span>
           </label>
@@ -398,7 +398,7 @@
         <div class="space-y-8">
           <!-- Holo Commands -->
           <div class="space-y-4">
-            <h3 class="text-xl font-bold text-neon-purple flex items-center">
+            <h3 class="text-xl font-bold text-neon-purple flex items-center mb-4">
               <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
               </svg>
@@ -411,7 +411,7 @@
           
           <!-- Preview -->
           <div class="space-y-4">
-            <h3 class="text-xl font-bold text-neon-pink flex items-center">
+            <h3 class="text-xl font-bold text-neon-pink flex items-center mb-4 mt-4">
               <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
               </svg>
@@ -529,7 +529,7 @@
           
           <!-- Preview -->
           <div class="space-y-4">
-            <h3 class="text-xl font-bold text-neon-pink flex items-center">
+            <h3 class="text-xl font-bold text-neon-pink flex items-center mb-2">
               <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
               </svg>
@@ -543,7 +543,7 @@
 
     <!-- Footer -->
     <div class="text-center mt-12 text-gray-500">
-      <p class="text-sm">
+      <p class="text-sm mb-2 mt-6">
         Made with ❤️ for Minecraft builders | 
         <span class="text-neon-blue">Cyber Hologram Generator</span>
       </p>
@@ -843,16 +843,20 @@
       showLoading();
       
       // Simulate processing time for animation
-      setTimeout(() => {
         processImage();
-      }, 500);
     }
 
     function processImage() {
+      const totalStartTime = performance.now();
+      console.log('🚀 [TIMER] processImage() started');
+      
       document.getElementById('convertBtn').disabled = true;
       // Always use a new Image object for every conversion
       let workingImg = new window.Image();
       workingImg.onload = function() {
+        const imageLoadTime = performance.now() - totalStartTime;
+        console.log(`⏱️ [TIMER] Image loaded in ${imageLoadTime.toFixed(2)}ms`);
+        
         document.getElementById('convertBtn').disabled = false;
         const maxWidthInput = parseInt(document.getElementById('widthInput').value, 10);
         const hWeight = parseFloat(document.getElementById('hWeight').value);
@@ -867,6 +871,7 @@
         const scale = maxWidth / workingImg.width;
         const newHeight = Math.round(workingImg.height * scale);
 
+        const canvasStartTime = performance.now();
         const canvas = document.getElementById('canvas');
         canvas.width = maxWidth;
         canvas.height = newHeight;
@@ -876,16 +881,27 @@
         ctx.imageSmoothingEnabled = true;
         if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(workingImg, 0, 0, maxWidth, newHeight);
+        
+        const canvasTime = performance.now() - canvasStartTime;
+        console.log(`⏱️ [TIMER] Canvas setup completed in ${canvasTime.toFixed(2)}ms`);
 
+        const imageDataStartTime = performance.now();
         const imgData = ctx.getImageData(0, 0, maxWidth, newHeight).data;
+        const imageDataTime = performance.now() - imageDataStartTime;
+        console.log(`⏱️ [TIMER] Image data extracted in ${imageDataTime.toFixed(2)}ms`);
+        
         let outputLines = [];
         let previewHtml = '';
         
-        // Process each line
+        const processingStartTime = performance.now();
+        console.log('🔄 [TIMER] Starting pixel processing...');
+        
+        // Process each line - optimized version
         for (let y = 0; y < newHeight; y++) {
           let pixelBlocks = [];
           let previewLine = '';
           let prevColor = null;
+          
           for (let x = 0; x < maxWidth; x++) {
             const idx = (y * maxWidth + x) * 4;
             const r = imgData[idx];
@@ -895,20 +911,20 @@
             let colorCode;
             let previewR = r, previewG = g, previewB = b;
             let pixelChar = outputPixelChar;
+            
             if (a === 0) {
               // Transparent pixel: always use selected MC color
               colorCode = transparentBgColor;
               // Set preview color for selected MC color
               const mc = mcColors.find(c => c.code === transparentBgColor);
               if (mc) { previewR = mc.r; previewG = mc.g; previewB = mc.b; }
-              pixelChar = outputPixelChar;
             } else if (bwMode) {
               colorCode = getClosestBWColor(r, g, b);
-              if (colorCode === '&0') { previewR = 0; previewG = 0; previewB = 0; }
-              else if (colorCode === '&f') { previewR = 255; previewG = 255; previewB = 255; }
-              else if (colorCode === '&7') { previewR = 170; previewG = 170; previewB = 170; }
-              else if (colorCode === '&8') { previewR = 85; previewG = 85; previewB = 85; }
-              pixelChar = outputPixelChar;
+              // Use lookup for better performance
+              const bwPreviewMap = {'&0': [0,0,0], '&f': [255,255,255], '&7': [170,170,170], '&8': [85,85,85]};
+              if (bwPreviewMap[colorCode]) {
+                [previewR, previewG, previewB] = bwPreviewMap[colorCode];
+              }
             } else if (onlyMcColor) {
               const shortCode = getMinecraftColorCode(r, g, b);
               if (shortCode) {
@@ -921,12 +937,11 @@
                 const mc = mcColors.find(c => c.code === closestCode);
                 if (mc) { previewR = mc.r; previewG = mc.g; previewB = mc.b; }
               }
-              pixelChar = outputPixelChar;
             } else {
               const shortCode = getMinecraftColorCode(r, g, b);
               colorCode = shortCode ? shortCode : rgbToMinecraftCode(r, g, b);
-              pixelChar = outputPixelChar;
             }
+            
             // Group by colorCode+pixelChar in all modes
             let colorKey = (bwMode || onlyMcColor || a === 0) ? colorCode + pixelChar : `${r},${g},${b}` + pixelChar;
             if (prevColor === null || colorKey !== prevColor) {
@@ -935,10 +950,12 @@
             } else {
               pixelBlocks[pixelBlocks.length - 1].count++;
             }
-            previewLine += `<span style=\"color:${rgbToCss(previewR,previewG,previewB)}\">${pixelChar === ' ' ? '&nbsp;' : '■'}</span>`;
+            
+            // Simplified preview generation
+            previewLine += `<span style="color:rgb(${previewR},${previewG},${previewB})">■</span>`;
           }
           
-          // Process line into chunks
+          // Process line into chunks - optimized version
           if (exceedLimit) {
             let merged = pixelBlocks.map(b => b.code + b.char.repeat(b.count)).join('');
             outputLines.push({ lineNum: y + 1, chunks: [merged] });
@@ -948,13 +965,15 @@
             let charsThisLine = 0;
             let chunks = [];
             
-            for (let i = 0; i < pixelBlocks.length; i++) {
-              let { code, char, count } = pixelBlocks[i];
+            for (let block of pixelBlocks) {
+              let { code, char, count } = block;
               let codeLen = code.length;
+              
               while (count > 0) {
                 if (charsThisLine + codeLen + 1 > 256) {
-                  chunks.push(chunk);
-                  chunkIndex++;
+                  if (chunk) {
+                    chunks.push(chunk);
+                  }
                   chunk = '';
                   charsThisLine = 0;
                 }
@@ -967,25 +986,47 @@
                 chunk += char.repeat(addCount);
                 charsThisLine += addCount;
                 count -= addCount;
+                
                 if (charsThisLine === 256) {
                   chunks.push(chunk);
-                  chunkIndex++;
                   chunk = '';
                   charsThisLine = 0;
                 }
               }
             }
-            if (chunk.length > 0) {
+            if (chunk) {
               chunks.push(chunk);
             }
+            
             outputLines.push({ lineNum: y + 1, chunks });
           }
           previewHtml += previewLine + '\n';
         }
         
+        const processingTime = performance.now() - processingStartTime;
+        console.log(`⏱️ [TIMER] Pixel processing completed in ${processingTime.toFixed(2)}ms`);
+        
+        const resultBuildStartTime = performance.now();
+        console.log('🔧 [TIMER] Building output structure...');
+        
+        const holoStartTime = performance.now();
         // Generate Holo structure
         generateHoloStructure(outputLines, hWeight, newHeight);
+        const holoTime = performance.now() - holoStartTime;
+        console.log(`⏱️ [TIMER] Holo structure generated in ${holoTime.toFixed(2)}ms`);
+        
+        const previewStartTime = performance.now();
+        console.log('🖥️ [TIMER] Updating preview DOM...');
         document.getElementById('preview').innerHTML = previewHtml;
+        const previewTime = performance.now() - previewStartTime;
+        console.log(`⏱️ [TIMER] Preview DOM updated in ${previewTime.toFixed(2)}ms`);
+        
+        const resultBuildTime = performance.now() - resultBuildStartTime;
+        console.log(`⏱️ [TIMER] Total result building completed in ${resultBuildTime.toFixed(2)}ms`);
+        
+        const totalTime = performance.now() - totalStartTime;
+        console.log(`🎉 [TIMER] Total processImage() completed in ${totalTime.toFixed(2)}ms`);
+        console.log(`📊 [TIMER] Breakdown: Load=${imageLoadTime.toFixed(2)}ms, Canvas=${canvasTime.toFixed(2)}ms, Data=${imageDataTime.toFixed(2)}ms, Processing=${processingTime.toFixed(2)}ms, ResultBuild=${resultBuildTime.toFixed(2)}ms (Holo=${holoTime.toFixed(2)}ms, Preview=${previewTime.toFixed(2)}ms)`);
         
         hideLoading();
       };
@@ -993,9 +1034,13 @@
     }
     
     function generateHoloStructure(outputLines, hWeight, totalLines) {
+      const holoStartTime = performance.now();
+      console.log('🔧 [TIMER] Starting holo structure generation...');
+      
       const container = document.getElementById('holoCommandsContainer');
       container.innerHTML = '';
       
+      const dataProcessingStart = performance.now();
       // Calculate H positions (from bottom to top)
       const holoData = [];
       let currentH = totalLines + 1; // Last holo position
@@ -1009,6 +1054,11 @@
         });
         currentH -= hWeight;
       }
+      const dataProcessingTime = performance.now() - dataProcessingStart;
+      console.log(`⏱️ [TIMER] Holo data processing completed in ${dataProcessingTime.toFixed(2)}ms`);
+      
+      const htmlGenerationStart = performance.now();
+      console.log('🔧 [TIMER] Generating HTML for holo items...');
       
       // Generate HTML for each holo
       holoData.forEach(holo => {
@@ -1025,8 +1075,8 @@
               </span>
             </div>
             <div class="holo-content-single expanded">
-              <div class="holo-subitem">
-                <div class="flex-1">
+              <div class="holo-subitem p-4">
+                <div class="flex-1 p-2">
                   <span class="text-gray-300 text-sm">${holo.holoNum}.1:</span>
                   <code class="text-neon-purple text-xs ml-2 break-all">${holo.chunks[0]}</code>
                 </div>
@@ -1049,8 +1099,8 @@
             </div>
             <div class="holo-content" id="content-${holo.holoNum}">
               ${holo.chunks.map((chunk, index) => `
-                <div class="holo-subitem">
-                  <div class="flex-1">
+                <div class="holo-subitem p-4">
+                  <div class="flex-1 p-2">
                     <span class="text-gray-300 text-sm">${holo.holoNum}.${index + 1}:</span>
                     <code class="text-neon-purple text-xs ml-2 break-all">${chunk}</code>
                   </div>
@@ -1064,6 +1114,13 @@
         }
         container.appendChild(holoDiv);
       });
+      
+      const htmlGenerationTime = performance.now() - htmlGenerationStart;
+      console.log(`⏱️ [TIMER] HTML generation completed in ${htmlGenerationTime.toFixed(2)}ms`);
+      
+      const totalHoloTime = performance.now() - holoStartTime;
+      console.log(`⏱️ [TIMER] Total holo structure generation completed in ${totalHoloTime.toFixed(2)}ms`);
+      console.log(`📊 [TIMER] Holo breakdown: DataProcessing=${dataProcessingTime.toFixed(2)}ms, HTMLGeneration=${htmlGenerationTime.toFixed(2)}ms`);
     }
     
     function toggleHolo(holoNum) {
