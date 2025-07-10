@@ -97,6 +97,14 @@
       background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
       white-space: pre;
     }
+
+    .pixel-preview.square-char {
+      line-height: 0.7 !important;
+    }
+
+    .pixel-preview.solid-char {
+      line-height: 0.5 !important;
+    }
     
     .hover-glow:hover {
       box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
@@ -292,6 +300,14 @@
           </div>
           
           <div class="space-y-2" style="flex: 1; min-width: 200px;">
+            <label class="block text-sm font-medium text-gray-300">Preview Character</label>
+            <select id="previewPixelChar" class="cyber-input w-full px-4 py-2 rounded-lg" onchange="updatePreviewLineHeight()">
+              <option value="█">█ (Solid Block)</option>
+              <option value="■">■ (Square)</option>
+            </select>
+          </div>
+          
+          <div class="space-y-2" style="flex: 1; min-width: 200px;">
             <label class="block text-sm font-medium text-gray-300">Max Width (pixels)</label>
             <input type="number" id="widthInput" value="18" min="1" max="64" class="cyber-input w-full px-4 py-2 rounded-lg">
           </div>
@@ -385,11 +401,21 @@
           </div>
         </div>
 
-        <!-- Convert Button -->
-        <div class="text-center">
+        <!-- Convert Button and Navigation -->
+        <div class="text-center space-y-4">
           <button id="convertBtn" onclick="convertImage()" disabled class="cyber-button px-8 py-3 rounded-lg text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed">
             <span class="relative z-10">Convert to Hologram</span>
           </button>
+          
+          <!-- Navigation Buttons -->
+          <div class="flex justify-center gap-6 mt-4">
+            <button onclick="scrollToSection('preview')" class="cyber-button px-8 py-3 rounded-lg text-sm font-medium">
+              <span class="relative z-10 px-2">📄 View Preview</span>
+            </button>
+            <button onclick="scrollToSection('commands')" class="cyber-button px-8 py-3 rounded-lg text-sm font-medium">
+              <span class="relative z-10 px-2">⚡ View Commands</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -397,7 +423,7 @@
       <div id="outputSection" class="hidden">
         <div class="space-y-8">
           <!-- Holo Commands -->
-          <div class="space-y-4">
+          <div id="commands" class="space-y-4">
             <h3 class="text-xl font-bold text-neon-purple flex items-center mb-4">
               <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
@@ -410,7 +436,7 @@
           </div>
           
           <!-- Preview -->
-          <div class="space-y-4">
+          <div id="preview-section" class="space-y-4">
             <h3 class="text-xl font-bold text-neon-pink flex items-center mb-4 mt-4">
               <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"/>
@@ -743,6 +769,42 @@
       }, 1000);
     };
 
+    // Function to update preview line height based on selected character
+    function updatePreviewLineHeight() {
+      const previewChar = document.getElementById('previewPixelChar').value;
+      const previewElements = document.querySelectorAll('.pixel-preview');
+      
+      previewElements.forEach(element => {
+        // Remove existing character classes
+        element.classList.remove('square-char', 'solid-char');
+        
+        // Add appropriate class based on selected character
+        if (previewChar === '■') {
+          element.classList.add('square-char');
+        } else if (previewChar === '█') {
+          element.classList.add('solid-char');
+        }
+      });
+    }
+
+    // Function to scroll to specific sections
+    function scrollToSection(sectionId) {
+      let targetElement;
+      
+      if (sectionId === 'preview') {
+        targetElement = document.getElementById('preview-section');
+      } else if (sectionId === 'commands') {
+        targetElement = document.getElementById('commands');
+      }
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }
+
     function rgbToMinecraftCode(r, g, b) {
       // Convert to 2-digit hex
       const hex = n => n.toString(16).padStart(2, '0');
@@ -952,7 +1014,8 @@
             }
             
             // Simplified preview generation
-            previewLine += `<span style="color:rgb(${previewR},${previewG},${previewB})">■</span>`;
+            const previewChar = document.getElementById('previewPixelChar') ? document.getElementById('previewPixelChar').value : '■';
+            previewLine += `<span style="color:rgb(${previewR},${previewG},${previewB})">${previewChar}</span>`;
           }
           
           // Process line into chunks - optimized version
@@ -1018,6 +1081,7 @@
         const previewStartTime = performance.now();
         console.log('🖥️ [TIMER] Updating preview DOM...');
         document.getElementById('preview').innerHTML = previewHtml;
+        updatePreviewLineHeight(); // Apply the correct line-height after setting content
         const previewTime = performance.now() - previewStartTime;
         console.log(`⏱️ [TIMER] Preview DOM updated in ${previewTime.toFixed(2)}ms`);
         
@@ -1498,7 +1562,7 @@
               runColor = thisColor;
               runLength = 1;
             }
-            previewLine += `<span style=\"color:${minecraftCodeToCss(thisColor)}\">■</span>`;
+            previewLine += `<span style=\"color:${minecraftCodeToCss(thisColor)}\">${document.getElementById('previewPixelChar') ? document.getElementById('previewPixelChar').value : '■'}</span>`;
           }
           if (runColor !== null && runLength > 0) {
             outputLine += runColor + outputPixelChar.repeat(runLength);
@@ -1594,6 +1658,7 @@
         allPreviewLines.push(...block);
       }
       document.getElementById('textHoloPreview').innerHTML = allPreviewLines.join('\n');
+      updatePreviewLineHeight(); // Apply the correct line-height after setting content
       
       showTextOutput();
     }
@@ -1643,6 +1708,11 @@
       };
       return map[hex.toLowerCase()] || null;
     }
+
+    // Apply initial line-height on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      updatePreviewLineHeight();
+    });
   </script>
 </body>
 </html> 
